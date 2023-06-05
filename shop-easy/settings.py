@@ -11,22 +11,71 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from decouple import Csv, config
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ENV_FILE = os.path.join(BASE_DIR, ".env")
+
+
+def get_env(variable, cast, default_value=None, source_cast=None):
+    """
+    This function is to remove the unnecessary calls for fetching the variables either
+    from the environment or the .env file. This would also keep the consistency to
+    always fetch the variables in the same manner
+
+    :param variable: The variable to fetch from the environment or .env
+    :param cast: Type cast to str, bool, int etc
+    :param default_value: If no variable is found, use this value
+    :param source_cast: If the variable is in another type, then specify it to be
+                                            changed into `cast` type
+    :return: The value to be expected from the variable
+    """
+
+    if source_cast:
+        return cast(source_cast(os.environ.get(key=variable, default=default_value))) \
+            if not os.path.exists(ENV_FILE) else config(variable, cast=cast, default=default_value)
+    return cast(os.environ.get(key=variable, default=default_value)) \
+        if not os.path.exists(ENV_FILE) else config(variable, cast=cast, default=default_value)
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-+2c5aumz5#d1pi_1ew=*8zm=s4*fhljuvai=02o_tqqox7rd5s'
+SECRET_KEY = get_env("SECRET", str)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = get_env("DEBUG", bool, 0, int)
+ENABLE_TEST = get_env("ENABLE_TEST", bool, 0, int)
+TEST_TOKEN = get_env("TEST_TOKEN", str, "12345")
 
-ALLOWED_HOSTS = []
+# Django global log level
+DJANGO_LOG_LEVEL = get_env("DJANGO_LOG_LEVEL", str, "INFO")
 
+ALLOWED_HOSTS = get_env("ALLOWED_HOSTS", Csv(), [])
+
+# Application definition
+MASTER_URL = get_env("MASTER_URL", str)
+MASTER_TOKEN = get_env("MASTER_TOKEN", str)
+
+ORG_URL = get_env("ORG_URL", str)
+ORG_INT_URL = "http://zeus.zeus-api.svc.cluster.local:8000"
+ORG_TOKEN = get_env("ORG_TOKEN", str)
+
+TIME_FORMAT_FRONTEND = get_env("TIME_FORMAT_FRONTEND", str, "%I:%M %p")
+DATE_FORMAT_FRONTEND = get_env("DATE_FORMAT_FRONTEND", str, "%B %d, %Y")
+DATETIME_FORMAT_FRONTEND = f"{DATE_FORMAT_FRONTEND}, {TIME_FORMAT_FRONTEND}"
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Customer ID header
+CUSTOMER_ID = "X-Customer-Id"
+
+# Twilio Tokens
+TWILIO_ACCOUNT_SID = get_env("TWILIO_ACCOUNT_SID", str)
+TWILIO_AUTH_TOKEN = get_env("TWILIO_AUTH_TOKEN", str)
+TWILIO_MOBILE_NUMBER = get_env("TWILIO_MOBILE_NUMBER", str)
 
 # Application definition
 
@@ -37,6 +86,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'products',
+    'accounts',
+
+    # Other apps
+    'phonenumber_field'
 ]
 
 MIDDLEWARE = [
@@ -69,17 +124,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'shop-easy.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": get_env("DB_ENGINE", str),
+        "HOST": get_env("DB_HOST", str),
+        "PORT": get_env("DB_PORT", int),
+        "NAME": get_env("DB_NAME", str),
+        "USER": get_env("DB_USERNAME", str),
+        "PASSWORD": get_env("DB_PASSWORD", str),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -99,7 +156,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
@@ -112,7 +168,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/

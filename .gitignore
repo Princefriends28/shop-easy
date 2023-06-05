@@ -154,3 +154,7 @@ fabric.properties
 # Editor-based Rest Client
 .idea/httpRequests
 webpack-stats.json
+
+# Other
+.iml
+.xml
