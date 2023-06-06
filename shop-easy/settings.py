@@ -10,13 +10,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
-from pathlib import Path
 import os
+
 from decouple import Csv, config
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ENV_FILE = os.path.join(BASE_DIR, ".env")
+ENV_FILE = os.path.join(BASE_DIR, '.env')
+TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 
 
 def get_env(variable, cast, default_value=None, source_cast=None):
@@ -44,38 +45,22 @@ def get_env(variable, cast, default_value=None, source_cast=None):
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = get_env("SECRET", str)
+SECRET_KEY = get_env('SECRET', str)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = get_env("DEBUG", bool, 0, int)
-ENABLE_TEST = get_env("ENABLE_TEST", bool, 0, int)
-TEST_TOKEN = get_env("TEST_TOKEN", str, "12345")
+DEBUG = get_env('DEBUG', bool, 0, int)
+ENABLE_TEST = get_env('ENABLE_TEST', bool, 0, int)
+TEST_TOKEN = get_env('TEST_TOKEN', str, '12345')
 
 # Django global log level
-DJANGO_LOG_LEVEL = get_env("DJANGO_LOG_LEVEL", str, "INFO")
+DJANGO_LOG_LEVEL = get_env('DJANGO_LOG_LEVEL', str, 'INFO')
 
-ALLOWED_HOSTS = get_env("ALLOWED_HOSTS", Csv(), [])
-
-# Application definition
-MASTER_URL = get_env("MASTER_URL", str)
-MASTER_TOKEN = get_env("MASTER_TOKEN", str)
-
-ORG_URL = get_env("ORG_URL", str)
-ORG_INT_URL = "http://zeus.zeus-api.svc.cluster.local:8000"
-ORG_TOKEN = get_env("ORG_TOKEN", str)
-
-TIME_FORMAT_FRONTEND = get_env("TIME_FORMAT_FRONTEND", str, "%I:%M %p")
-DATE_FORMAT_FRONTEND = get_env("DATE_FORMAT_FRONTEND", str, "%B %d, %Y")
-DATETIME_FORMAT_FRONTEND = f"{DATE_FORMAT_FRONTEND}, {TIME_FORMAT_FRONTEND}"
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-# Customer ID header
-CUSTOMER_ID = "X-Customer-Id"
+ALLOWED_HOSTS = get_env('ALLOWED_HOSTS', Csv(), [])
 
 # Twilio Tokens
-TWILIO_ACCOUNT_SID = get_env("TWILIO_ACCOUNT_SID", str)
-TWILIO_AUTH_TOKEN = get_env("TWILIO_AUTH_TOKEN", str)
-TWILIO_MOBILE_NUMBER = get_env("TWILIO_MOBILE_NUMBER", str)
+TWILIO_ACCOUNT_SID = get_env('TWILIO_ACCOUNT_SID', str)
+TWILIO_AUTH_TOKEN = get_env('TWILIO_AUTH_TOKEN', str)
+TWILIO_MOBILE_NUMBER = get_env('TWILIO_MOBILE_NUMBER', str)
 
 # Application definition
 
@@ -109,7 +94,7 @@ ROOT_URLCONF = 'shop-easy.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [TEMPLATE_DIR],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -128,13 +113,13 @@ WSGI_APPLICATION = 'shop-easy.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": get_env("DB_ENGINE", str),
-        "HOST": get_env("DB_HOST", str),
-        "PORT": get_env("DB_PORT", int),
-        "NAME": get_env("DB_NAME", str),
-        "USER": get_env("DB_USERNAME", str),
-        "PASSWORD": get_env("DB_PASSWORD", str),
+    'default': {
+        'ENGINE': get_env('DB_ENGINE', str),
+        'HOST': get_env('DB_HOST', str),
+        'PORT': get_env('DB_PORT', int),
+        'NAME': get_env('DB_NAME', str),
+        'USER': get_env('DB_USERNAME', str),
+        'PASSWORD': get_env('DB_PASSWORD', str),
     }
 }
 
@@ -172,7 +157,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
+
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+STATICFILES_DIR = {
+    os.path.join(BASE_DIR, "public/static")
+}
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'public/static')
+MEDIA_URL = '/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
