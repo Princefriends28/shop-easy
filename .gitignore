@@ -158,3 +158,4 @@ webpack-stats.json
 # Other
 .iml
 .xml
+staticfiles/
