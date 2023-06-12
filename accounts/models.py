@@ -14,6 +14,13 @@ class Profile(models.Model):
     email = models.CharField(max_length=255)
     is_verified_email = models.BooleanField(default=False)
 
+    class Meta:
+        verbose_name = _("profile")
+        verbose_name_plural = _("profiles")
+
+    def __str__(self):
+        return str(self.user)
+
 
 class AuthToken(models.Model):
     user = models.OneToOneField(to="auth.User", on_delete=models.CASCADE, verbose_name=_("user"))
