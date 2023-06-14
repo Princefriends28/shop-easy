@@ -5,9 +5,10 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import path, include
 
 urlpatterns = [
-    path('accounts/', include('accounts.urls')),
     path('admin/', admin.site.urls),
-    path('api/', include('rest_framework.urls'))
+
+    # Apps URL
+    path('accounts/', include('accounts.urls'), name='accounts-api'),
 ]
 
 if settings.DEBUG:

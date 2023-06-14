@@ -1,14 +1,16 @@
-from rest_framework import viewsets
+from rest_framework import generics
 
+from accounts.models import Profile, AuthToken
 from .serializers import *
-from ..models import *
 
 
-class ProfileViewSet(viewsets.ModelViewSet):
+class ProfileViewSet(generics.GenericAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
 
+    # def post(self, request, *args, **kwargs):
 
-class AuthTokenViewSet(viewsets.ModelViewSet):
+
+class AuthTokenViewSet(generics.GenericAPIView):
     queryset = AuthToken.objects.all()
     serializer_class = AuthTokenSerializer
